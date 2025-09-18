@@ -30,6 +30,7 @@ Recognition Results:
   'contact': '9876543210',
   'images_count': 40
 }
+
 **How the Magic Happens**
 Step 1 - Spot the Face: The program scans your photo and goes "Found you!" when it detects a face, figuring out exactly where it is in the image.
 
@@ -44,8 +45,8 @@ Python 3.8 or newer (the programming language that runs everything)
 
 A few helpful libraries that do the heavy lifting:
 
-# pip install numpy opencv-contrib-python mtcnn keras-facenet pymongo
-
+**Requirements:**
+**pip install numpy opencv-contrib-python mtcnn keras-facenet pymongo**
 Run it: Type **python face_recognition.py** and watch it work
 
 **Get your answer** - it'll show us exactly who it found and their details
