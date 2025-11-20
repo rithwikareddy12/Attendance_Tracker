@@ -1,0 +1,188 @@
+https://github.com/savram674/MavenJavaDemo.git
+
+
+https://github.com/archanareddyse/mavenweb.git
+
+
+
+**JAVA**
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK21'
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                echo "Cloning GitHub repository..."
+                git branch: 'master', url: 'https://github.com/savram674/MavenJavaDemo.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                bat "mvn clean package"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat "mvn test"
+            }
+        }
+
+        stage('Generate Artifact') {
+            steps {
+                bat "dir target"
+            }
+        }
+
+        stage('Final Output') {
+            steps {
+                echo "BUILD SUCCESS — Pipeline Completed"
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo "BUILD FAILED — Check Errors in Build Logs."
+        }
+    }
+}
+
+
+***Web aPP**
+pipeline {
+    agent any
+
+    environment {
+        CATALINA_HOME = "C:\\apache-tomcat-9.0.109"
+    }
+
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/archanareddyse/mavenweb.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat "mvn clean package"
+            }
+        }
+
+        stage('Detect WAR') {
+            steps {
+                script {
+                    def output = bat(
+                        script: 'dir /b target\\*.war',
+                        returnStdout: true
+                    ).trim()
+
+                    def warFile = output.tokenize('\n')[-1].trim()
+
+                    if (!warFile.endsWith(".war")) {
+                        error "WAR not found! Output: ${output}"
+                    }
+
+                    env.WAR_NAME = warFile
+                    echo "WAR detected: ${warFile}"
+                }
+            }
+        }
+
+        stage('Stop Tomcat') {
+            steps {
+                bat "\"${CATALINA_HOME}\\bin\\shutdown.bat\" || exit 0"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat """
+                    copy /Y "target\\${WAR_NAME}" "${CATALINA_HOME}\\webapps\\${WAR_NAME}"
+                """
+            }
+        }
+
+        stage('Start Tomcat') {
+            steps {
+                bat "\"${CATALINA_HOME}\\bin\\startup.bat\""
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Deployment successful! Visit http://localhost:8080/${WAR_NAME.replace('.war','')}"
+        }
+        failure {
+            echo "❌ Deployment failed. Check logs."
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+minikube start --driver=docker (if error -> minikube delete , start again)
+kubectl create deployment mynginx --image=nginx
+kubectl expose deployment mynginx --type=NodePort --port=80
+minikube service mynginx (or) kubectl port-forward service/mynginx 8085:80
+
+kubectl delete service service_name
+kubectl get service ->get list of services
+
+for specific port:
+kubectl expose deployment mynginx --type=NodePort --port=8090 --target-port=80
+
+kubectl get pods
+kubectl get deployment
+kubectl describe pod
+kubectl describe pod pod_name
+
+nagios docker image:=>
+docker pull jasonrivers/nagios:latest
+docker run --name nagiosdemo -p 8888:80 -d jasonrivers/nagios:latest
+
+username:nagiosadmin
+password:nagios
+
+AWS:
+sudo apt update
+sudo apt-get install docker.io
+ sudo apt-get install git
+sudo apt-get install nano
+git clone <repo>
+cd <repo>
+ls
+nano Dockerfile (write this)=>
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+
+sudo docker build -t myserver .
+sudo docker run -d -p 80:80
+
+go to instances and open ipv4 web
