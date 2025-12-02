@@ -6,55 +6,37 @@ https://github.com/archanareddyse/mavenweb.git
 
 
 **JAVA**
-pipeline {
-    agent any
-
-    tools {
-        maven 'Maven'
-        jdk 'JDK21'
-    }
-
-    stages {
-
-        stage('Clone Repository') {
-            steps {
-                echo "Cloning GitHub repository..."
-                git branch: 'master', url: 'https://github.com/savram674/MavenJavaDemo.git'
-            }
-        }
-
-        stage('Build with Maven') {
-            steps {
-                bat "mvn clean package"
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat "mvn test"
-            }
-        }
-
-        stage('Generate Artifact') {
-            steps {
-                bat "dir target"
-            }
-        }
-
-        stage('Final Output') {
-            steps {
-                echo "BUILD SUCCESS — Pipeline Completed"
-            }
-        }
-    }
-
-    post {
-        failure {
-            echo "BUILD FAILED — Check Errors in Build Logs."
-        }
-    }
+pipeline { 
+    agent any 
+    tools{ 
+        jdk 'JAVA_HOME' 
+        maven 'MAVEN_HOME' 
+    } 
+    stages { 
+        stage('git repo & clean') { 
+            steps { 
+                bat "rmdir /s /q MavenJavaDemo || exit 0" 
+                bat "git clone https://github.com/Akshaya05-code/MavenJavaDemo.git" 
+                bat "mvn clean -f MavenJavaDemo/pom.xml" 
+            } 
+        } 
+        stage('install') { 
+            steps { 
+                bat "mvn install -f MavenJavaDemo/pom.xml"  
+            } 
+        } 
+        stage('test') { 
+            steps { 
+                bat "mvn test -f MavenJavaDemo/pom.xml" 
+            } 
+        } 
+        stage('package') { 
+            steps { 
+                bat "mvn package -f MavenJavaDemo/pom.xml" 
+            } 
+        } 
+    } 
 }
-
 
 ***Web aPP**
 pipeline {
@@ -130,18 +112,50 @@ pipeline {
 }
 
 
+**Simple script**
 
+pipeline {
+    agent any
 
+    stages {
 
+        stage('Checkout Code') {
+            steps {
+                echo "Pulling code from Git..."
+                git branch: 'main', url: 'https://github.com/your-username/your-web-project.git'
+            }
+        }
 
+        stage('Install Dependencies') {
+            steps {
+                echo "Installing dependencies..."
+                sh 'npm install'        // remove if it's just HTML/CSS
+            }
+        }
 
+        stage('Build') {
+            steps {
+                echo "Building project..."
+                sh 'npm run build'      // optional
+            }
+        }
 
+        stage('Test') {
+            steps {
+                echo "Running tests..."
+                sh 'npm test'           // optional
+            }
+        }
 
-
-
-
-
-
+        stage('Deploy') {
+            steps {
+                echo "Deploying App..."
+                sh 'echo Deployment successful!'
+                // Copy build files to server OR run docker OR put simple message
+            }
+        }
+    }
+}
 
 
 
@@ -149,7 +163,7 @@ pipeline {
 
 minikube start --driver=docker (if error -> minikube delete , start again)
 kubectl create deployment mynginx --image=nginx
-kubectl expose deployment mynginx --type=NodePort --port=80
+kubectl expose deployment mynginx --type=NodePort --port=80 --target-port=80
 minikube service mynginx (or) kubectl port-forward service/mynginx 8085:80
 
 kubectl delete service service_name
@@ -158,6 +172,7 @@ kubectl get service ->get list of services
 for specific port:
 kubectl expose deployment mynginx --type=NodePort --port=8090 --target-port=80
 
+kubectl scale deployment mynginx --replicas=4
 kubectl get pods
 kubectl get deployment
 kubectl describe pod
@@ -166,6 +181,7 @@ kubectl describe pod pod_name
 nagios docker image:=>
 docker pull jasonrivers/nagios:latest
 docker run --name nagiosdemo -p 8888:80 -d jasonrivers/nagios:latest
+docker run --name nagiodemo -p 8888:80 jasonrivers/nagios:latest
 
 username:nagiosadmin
 password:nagios
@@ -173,7 +189,7 @@ password:nagios
 AWS:
 sudo apt update
 sudo apt-get install docker.io
- sudo apt-get install git
+sudo apt-get install git
 sudo apt-get install nano
 git clone <repo>
 cd <repo>
@@ -182,7 +198,213 @@ nano Dockerfile (write this)=>
 FROM nginx:alpine
 COPY . /usr/share/nginx/html
 
+FROM tomcat:9-jdk11
+COPY target/*.war /usr/local/tomcat/webapps
+
 sudo docker build -t myserver .
-sudo docker run -d -p 80:80
+sudo docker run -d -p 80:80 myserver
 
 go to instances and open ipv4 web
+
+
+
+
+
+***Docker***
+docker pull redis 
+docker run --name my-redis -d redis 
+docker exec -it my-redis redis-cli 
+127.0.0.1:6379> SET name "Alice" 
+127.0.0.1:6379> GET name 
+docker stop my-redis 
+docker start my-redis 
+docker logs my-redis
+
+docker volume create mydata 
+docker volume ls 
+docker volume inspect mydata 
+docker run -d --name my-reds -v mydata:/data redis
+
+docker --version
+docker compose version
+mkdir myapp
+cd myapp
+docker compose up -d
+docker ps
+docker exec -it myapp-db-1 bash
+psql -U demo -d demo_db
+create table users(id serial primary key, name varchar(50));
+ \insert into users (name) values ('john'),('joe');
+select * from users;
+\q
+ exit
+docker compose up --build
+
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'MAVEN_HOME'
+    }
+
+    stages {
+
+        stage('Clone Repo & Clean') {
+            steps {
+                // Delete old directory if it exists
+                bat "if exist SAH rmdir /s /q SAH"
+
+                // Clone fresh
+                bat "git clone https://github.com/jroopika/SAH"
+
+                bat "mvn clean -f SAH/pom.xml"
+            }
+        }
+
+        stage('Install') {
+            steps {
+                bat "mvn install -f SAH/pom.xml"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat "mvn test -f SAH/pom.xml"
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat "mvn package -f SAH/pom.xml"
+            }
+        }}
+        post {
+  always {
+    emailext (
+      subject: "Pipeline Status: ${currentBuild.result}",
+      body: '''<html>
+        <body>
+          <p>Build Status: ${BUILD_STATUS}</p>
+          <p>Build Number: ${BUILD_NUMBER}</p>
+          <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+        </body>
+      </html>''',
+      to: 'akshayakadari1020@gmail.com',
+      from: 'akshayareddykadari@example.com',
+      replyTo: 'akshayareddykadari@example.com',
+      mimeType: 'text/html'
+    )
+  }
+}
+
+    
+}
+
+**Docker files**
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - app-net
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-net
+
+networks:
+  app-net:
+
+volumes:
+  db-data:
+------------
+
+networks:
+  app-net:
+
+volumes:
+  db-data:
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    networks:
+      - app-net
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-net
+
+
+----------------
+
+FROM python:3.10-slim 
+WORKDIR /app 
+COPY app.py /app/ 
+RUN pip install flask 
+CMD ["python", "app.py"]
+
+---------------------
+
+version: '3'
+services:
+  tomcat:
+    image: tomcat:9-jdk17
+    container_name: mytomcat
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./target/myapp.war:/usr/local/tomcat/webapps/myapp.war
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    container_name: mydb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: examdb
+    ports:
+      - "3306:3306"
+
+
+---------------------
+
+version: '3'
+services:
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
+
+-----------------
+
+
+**TOMCAT role**
+<role rolename="manager-gui"/>
+<role rolename="admin-gui"/>
+<user username="admin" password="admin123" roles="manager-gui,admin-gui"/>
+<role rolename="manager-script"/>
+<user username="jenkins" password="JenkinsPass123" roles="manager-script"/>
