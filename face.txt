@@ -4,6 +4,90 @@ https://github.com/savram674/MavenJavaDemo.git
 https://github.com/archanareddyse/mavenweb.git
 
 email 16digit: fwhk gppd hpoy fkrq
+email notification:
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK21'
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                echo "Cloning GitHub repository..."
+                git branch: 'master', url: 'https://github.com/savram674/MavenJavaDemo.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                bat "mvn clean package"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat "mvn test"
+            }
+        }
+
+        stage('Generate Artifact') {
+            steps {
+                bat "dir target"
+            }
+        }
+
+        stage('Final Output') {
+            steps {
+                echo "BUILD SUCCESS — Pipeline Completed"
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo "Build SUCCESS - Sending Email..."
+            emailext(
+                subject: "Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                mimeType: 'text/html',
+                body: """
+                <h3 style='color:green;'>BUILD SUCCESS ✔</h3>
+                <p>Job: ${env.JOB_NAME}</p>
+                <p>Build Number: #${env.BUILD_NUMBER}</p>
+                <p>Status: SUCCESS</p>
+                <p>Check console output for full logs.</p>
+                <p><a href="${env.BUILD_URL}">View Build in Jenkins</a></p>
+                """,
+                to: "your_email@example.com"
+            )
+        }
+
+        failure {
+            echo "Build FAILED - Sending Email..."
+            emailext(
+                subject: "Jenkins Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                mimeType: 'text/html',
+                <h3 style='color:red;'>BUILD FAILED ❌</h3>
+                <p>Job: ${env.JOB_NAME}</p>
+                <p>Build Number: #${env.BUILD_NUMBER}</p>
+                <p>Status: FAILURE</p>
+                <p>Error logs available in Jenkins.</p>
+                <p><a href="${env.BUILD_URL}">View Build in Jenkins</a></p>
+                """,
+                to: "your_email@example.com"
+            )
+        }
+
+        always {
+            echo "Build completed (success or fail)"
+        }
+    }
+}
 
 **JAVA**
 pipeline { 
