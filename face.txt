@@ -173,6 +173,7 @@ for specific port:
 kubectl expose deployment mynginx --type=NodePort --port=8090 --target-port=80
 
 kubectl scale deployment mynginx --replicas=4
+kubectl get service mynginx
 kubectl get pods
 kubectl get deployment
 kubectl describe pod
@@ -182,6 +183,7 @@ nagios docker image:=>
 docker pull jasonrivers/nagios:latest
 docker run --name nagiosdemo -p 8888:80 -d jasonrivers/nagios:latest
 docker run --name nagiodemo -p 8888:80 jasonrivers/nagios:latest
+docker rm nagiosdemo
 
 username:nagiosadmin
 password:nagios
