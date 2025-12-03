@@ -445,6 +445,39 @@ services:
 
 
 ----------------
+Dockercompose for wordpress with mysql :
+version: '3.8'  # Docker Compose file format version
+
+services:
+  wordpress:  # WordPress service
+    image: wordpress:latest
+    ports:
+      - "8080:80"  # Map port 80 of the container to port 8080 of the host
+    environment:
+      WORDPRESS_DB_HOST: db:3306  # Database host
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db  # Ensures the db service starts first
+
+  db:  # MySQL service
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+===============
+app.py:
+from flask import Flask
+app = Flask(__name__)
+@app.route("/")
+def home():
+    return "HELLO hii"
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+----------------
 
 FROM python:3.10-slim 
 WORKDIR /app 
@@ -494,3 +527,142 @@ services:
 <user username="admin" password="admin123" roles="manager-gui,admin-gui"/>
 <role rolename="manager-script"/>
 <user username="jenkins" password="JenkinsPass123" roles="manager-script"/>
+
+
+
+
+
+======================
+BASIC GIT SETUP
+======================
+git --version
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+git config --list
+
+======================
+STARTING A REPOSITORY
+======================
+git init
+git clone <repository-url>
+
+======================
+CHECK STATUS / HISTORY
+======================
+git status
+git log
+git log --oneline
+git log --oneline --graph --all
+git show <commit-id>
+
+======================
+STAGING & COMMITTING
+======================
+git add .
+git add <filename>
+git reset <filename>            # unstage file
+git commit -m "commit message"
+git commit -am "add + commit tracked files"
+
+======================
+BRANCHING
+======================
+git branch
+git branch <branch-name>
+git checkout <branch-name>
+git checkout -b <new-branch>    # create + switch
+git branch -d <branch-name>     # delete branch
+git branch -D <branch-name>     # force delete
+
+======================
+MERGING & REBASING
+======================
+git merge <branch-name>
+git rebase <branch-name>
+git rebase --continue
+git rebase --abort
+
+======================
+PUSHING & PULLING
+======================
+git remote -v
+git remote add origin <repo-url>
+git push -u origin <branch-name>
+git push
+git pull
+git fetch
+
+======================
+UNDO / FIX MISTAKES
+======================
+git reset --soft HEAD~1         # undo commit, keep changes staged
+git reset --mixed HEAD~1        # undo commit, keep changes unstaged
+git reset --hard HEAD~1         # undo commit completely (danger!)
+git restore <filename>          # restore file
+git restore --staged <file>     # unstage
+git checkout -- <filename>      # old restore (legacy)
+
+======================
+DELETE FILES / RENAME
+======================
+git rm <filename>
+git rm -r <folder>
+git mv <old> <new>
+
+======================
+STASH COMMANDS
+======================
+git stash
+git stash save "message"
+git stash list
+git stash apply
+git stash drop
+git stash pop
+
+======================
+TAGS (RELEASES)
+======================
+git tag
+git tag <tag-name>
+git tag -a <tag-name> -m "message"
+git push --tags
+
+======================
+GIT CLEAN (REMOVE UNTRACKED FILES)
+======================
+git clean -n                   # preview
+git clean -f                   # delete untracked files
+git clean -fd                  # delete untracked files + folders
+
+======================
+GIT DIFF COMMANDS
+======================
+git diff
+git diff --staged
+git diff <branch1> <branch2>
+
+======================
+CHECKOUT OLD COMMITS (DETACHED)
+======================
+git checkout <commit-id>
+git switch -                   # go back to previous branch
+
+======================
+GITHUB SPECIFIC
+======================
+git clone <repo-url>
+git commit -m "message"
+git push
+git pull
+git pull origin <branch>
+git push origin <branch>
+
+======================
+BEST PRACTICE SHORTCUTS
+======================
+git add -A
+git commit --amend
+git commit --amend --no-edit
+git pull --rebase
+git push -f                    # force push (danger!)
+
